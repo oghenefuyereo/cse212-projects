@@ -11,14 +11,16 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3) and
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found:
+    // The queue behaved like a normal queue instead of a circular queue.
+    // After a person took a turn they were removed even when they still had turns left,
+    // which caused the sequence to end early and not match the expected order.
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
         var tim = new Person("Tim", 5);
         var sue = new Person("Sue", 3);
 
-        // student-style array initialization
         Person[] expectedResult = new Person[] { bob, tim, sue, bob, tim, sue, tim, sue, tim, tim };
 
         var players = new TakingTurnsQueue();
@@ -44,7 +46,9 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3)
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
-    // Defect(s) Found: 
+    // Defect(s) Found:
+    // When a new player was added while the queue was already running,
+    // the rotation order became incorrect and players appeared in the wrong position.
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -86,7 +90,9 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found:
+    // A turns value of 0 was treated as no turns instead of infinite turns,
+    // so the player disappeared after one turn instead of staying in the queue.
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -108,7 +114,6 @@ public class TakingTurnsQueueTests
             Assert.AreEqual(expectedResult[i].Name, person.Name);
         }
 
-        // Verify that the people with infinite turns really do have infinite turns.
         var infinitePerson = players.GetNextPerson();
         Assert.AreEqual(timTurns, infinitePerson.Turns, "People with infinite turns should not have their turns parameter modified to a very big number. A very big number is not infinite.");
     }
@@ -117,7 +122,9 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found:
+    // Negative turns were reduced and the player eventually left the queue,
+    // but negative values should represent unlimited turns and never change.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -136,7 +143,6 @@ public class TakingTurnsQueueTests
             Assert.AreEqual(expectedResult[i].Name, person.Name);
         }
 
-        // Verify that the people with infinite turns really do have infinite turns.
         var infinitePerson = players.GetNextPerson();
         Assert.AreEqual(timTurns, infinitePerson.Turns, "People with infinite turns should not have their turns parameter modified to a very big number. A very big number is not infinite.");
     }
@@ -144,7 +150,9 @@ public class TakingTurnsQueueTests
     [TestMethod]
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
-    // Defect(s) Found: 
+    // Defect(s) Found:
+    // The method did not throw the required InvalidOperationException when the queue was empty
+    // or returned a different message than "No one in the queue."
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
